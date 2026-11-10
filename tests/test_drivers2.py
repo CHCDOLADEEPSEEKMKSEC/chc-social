@@ -86,6 +86,25 @@ def test_delete_and_identity():
     check("discord identity check refuses cleanly", no_acc.get("ok") is False, dict(no_acc))
 
 
+def test_queue_drain_end_to_end():
+    """Prove the drain path really sends: queue a job, drain it, check the state moved."""
+    import io, os
+    from chc_social import queue as q, mcp
+    os.environ["CHC_SOCIAL_DRY_RUN"] = "1"          # drivers must not touch the network
+    os.environ["CHC_TELEGRAM_BOT_TOKEN"] = "t"
+    os.environ["CHC_TELEGRAM_CHAT_ID"] = "1"
+    job = q.add("telegram", "drained by the timer", in_seconds=-1)
+    check("job queued pending", job["ok"] and q.due(), job)
+    out = mcp.call("social_queue", {"drain": True})
+    check("drain reports the job", out["ok"] and out["drained"] and out["drained"][0]["job"] == job["id"],
+          out)
+    check("drained job marked sent", out["drained"][0]["ok"] is True, out["drained"])
+    states = {j["id"]: j["state"] for j in q.listing()}
+    check("queue state is sent", states.get(job["id"]) == "sent", states)
+    for k in ("CHC_SOCIAL_DRY_RUN", "CHC_TELEGRAM_BOT_TOKEN", "CHC_TELEGRAM_CHAT_ID"):
+        os.environ.pop(k, None)
+
+
 def test_scheduler_assets():
     base = ROOT / "deploy"
     check("drain service exists", (base / "chc-social-drain.service").is_file())
@@ -98,7 +117,7 @@ def test_scheduler_assets():
 
 if __name__ == "__main__":
     for fn in (test_registration, test_fb_browser_dry, test_x_browser, test_instagram,
-               test_whatsapp_media, test_soundcloud, test_delete_and_identity, test_scheduler_assets):
+               test_whatsapp_media, test_soundcloud, test_delete_and_identity, test_queue_drain_end_to_end, test_scheduler_assets):
         print("--", fn.__name__)
         fn()
     print()
