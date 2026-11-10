@@ -1,0 +1,10 @@
+[Unit]
+Description=CHC SOCIAL scheduled-post drain
+After=network-online.target
+
+[Service]
+Type=oneshot
+Environment=CHC_VAULT=/mnt/ledger/vault
+WorkingDirectory=/mnt/ledger/vault/products/chc_social
+ExecStart=/usr/bin/python3 -m chc_social.cli queue --drain
+Nice=10

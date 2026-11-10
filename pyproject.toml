@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chc-social"
+version = "0.2.0"
+description = "One MCP server for every social network, with learned recipes and a signed ledger"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Source-available, all rights reserved"}
+authors = [{name = "CHC / Mirage Intelligence"}]
+keywords = ["mcp", "social-media", "automation", "agent", "audit"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Communications",
+  "Topic :: Internet",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = []
+
+[project.scripts]
+chc-social = "chc_social.cli:main"
+
+[tool.setuptools]
+packages = ["chc_social", "chc_social.drivers"]
