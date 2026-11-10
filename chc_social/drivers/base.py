@@ -71,5 +71,9 @@ class Driver:
     def read(self, **kw):
         raise NotImplementedError
 
-    def delete(self, target_id):
-        raise NotImplementedError
+    def delete(self, target_id, **kw):
+        """Not every network can delete. Say so as data, never as a traceback."""
+        return fail("%s does not implement delete" % self.network, network=self.network)
+
+    def account(self, **kw):
+        return fail("%s driver has no identity check" % self.network, network=self.network)

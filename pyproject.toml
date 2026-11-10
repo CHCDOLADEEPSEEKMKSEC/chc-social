@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "chc-social"
-version = "0.2.0"
+version = "0.2.1"
 description = "One MCP server for every social network, with learned recipes and a signed ledger"
 readme = "README.md"
 requires-python = ">=3.9"

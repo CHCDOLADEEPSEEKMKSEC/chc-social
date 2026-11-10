@@ -5,12 +5,12 @@ auth: none | token | oauth | session  (session = logged-in browser, no API)
 """
 REGISTRY = {
     "telegram": {
-        "name": "Telegram", "caps": ["post", "read", "media", "delete"],
+        "name": "Telegram", "caps": ["post", "edit", "delete", "read", "media", "account"],
         "auth": "token", "env": ["CHC_TELEGRAM_BOT_TOKEN"],
         "chat_id_env": "CHC_TELEGRAM_CHAT_ID",
         "driver": "telegram",
         "api": "https://api.telegram.org/bot{token}/sendMessage",
-        "notes": "Real public Bot API. Free, no review. Best first channel.",
+        "notes": "Full Bot API: post, edit, delete, pin, getMe identity check. Free, no review.",
     },
     "discord": {
         "name": "Discord", "caps": ["post", "media"],

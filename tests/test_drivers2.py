@@ -71,6 +71,21 @@ def test_soundcloud():
         os.environ.pop(k, None)
 
 
+def test_delete_and_identity():
+    tg = drivers.load("telegram", dry_run=True)
+    check("telegram delete dry-run", tg.delete(42).get("ok") is True)
+    check("telegram edit dry-run", tg.edit(42, "new text").get("ok") is True)
+    check("telegram pin dry-run", tg.pin(42).get("ok") is True)
+    acc = tg.account()
+    check("telegram account dry-run", acc.get("ok") is True and "request" in acc)
+    check("telegram delete caps advertised", "delete" in registry.get("telegram")["caps"])
+    no_del = drivers.load("discord", dry_run=True).delete("1")
+    check("discord delete returns a clean refusal", no_del.get("ok") is False and "does not implement" in no_del["error"],
+          dict(no_del))
+    no_acc = drivers.load("discord", dry_run=True).account()
+    check("discord identity check refuses cleanly", no_acc.get("ok") is False, dict(no_acc))
+
+
 def test_scheduler_assets():
     base = ROOT / "deploy"
     check("drain service exists", (base / "chc-social-drain.service").is_file())
@@ -83,7 +98,7 @@ def test_scheduler_assets():
 
 if __name__ == "__main__":
     for fn in (test_registration, test_fb_browser_dry, test_x_browser, test_instagram,
-               test_whatsapp_media, test_soundcloud, test_scheduler_assets):
+               test_whatsapp_media, test_soundcloud, test_delete_and_identity, test_scheduler_assets):
         print("--", fn.__name__)
         fn()
     print()

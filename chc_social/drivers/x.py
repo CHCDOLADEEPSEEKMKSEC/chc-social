@@ -21,3 +21,16 @@ class X(Driver):
         if "error" in r or r.get("status", 201) >= 400:
             return fail(r.get("error") or r, network="x")
         return ok(network="x", id=((r.get("json") or {}).get("data") or {}).get("id"))
+
+    def delete(self, tweet_id, **kw):
+        try:
+            token = self._env("CHC_X_BEARER")
+        except KeyError as e:
+            return fail(str(e), network="x")
+        r = self.http("DELETE", "https://api.x.com/2/tweets/%s" % tweet_id,
+                      headers={"authorization": "Bearer %s" % token})
+        if self.dry_run:
+            return ok(network="x", dry_run=True, request=r)
+        if "error" in r or r.get("status", 200) >= 400:
+            return fail(r.get("error") or r, network="x")
+        return ok(network="x", deleted=str(tweet_id))

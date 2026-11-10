@@ -1,4 +1,4 @@
-# CHC SOCIAL v0.2.0
+# CHC SOCIAL v0.2.1
 
 **One MCP server. Every network. A signed receipt for every action.**
 
@@ -53,8 +53,8 @@ python3 -m chc_social.cli networks
 {"mcpServers": {"chc-social": {"command": "python3", "args": ["-m", "chc_social.mcp"]}}}
 ```
 
-Tools: `social_networks`, `social_post`, `social_read`, `social_schedule`, `social_queue`,
-`social_learn`, `social_recipes`, `social_ledger_selftest`.
+Tools (10): `social_networks`, `social_post`, `social_read`, `social_schedule`, `social_queue`,
+`social_learn`, `social_recipes`, `social_delete`, `social_account`, `social_ledger_selftest`.
 
 ## Use from the shell
 
@@ -66,6 +66,8 @@ chc_social schedule telegram "later" --in 3600
 chc_social queue --drain
 chc_social learn x https://x.com --save        # probe the live DOM, propose selectors
 chc_social recipes
+chc_social delete telegram 42 --dry-run
+chc_social whoami                       # which account do these credentials belong to?
 ```
 
 ## The learning layer

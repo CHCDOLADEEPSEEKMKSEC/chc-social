@@ -27,6 +27,11 @@ def main(argv=None):
     lr.add_argument("network"); lr.add_argument("url"); lr.add_argument("--save", action="store_true")
     lr.add_argument("--dom-text", help="learn offline from a saved DOM/text snapshot")
 
+    dl = sub.add_parser("delete", help="delete a post by id")
+    dl.add_argument("network"); dl.add_argument("id"); dl.add_argument("--dry-run", action="store_true")
+    sub.add_parser("whoami", help="show which account each network's credentials belong to").add_argument(
+        "network", nargs="?", default="all")
+
     sub.add_parser("mcp", help="run the MCP server on stdio")
     sub.add_parser("selftest", help="prove the ledger works")
 
@@ -51,6 +56,12 @@ def main(argv=None):
     elif a.cmd == "learn":
         out = mcp.call("social_learn", {"network": a.network, "url": a.url,
                                         "save": a.save, "dom_text": a.dom_text})
+    elif a.cmd == "delete":
+        out = mcp.call("social_delete", {"network": a.network, "id": a.id, "dry_run": a.dry_run})
+    elif a.cmd == "whoami":
+        nets = [a.network] if a.network and a.network != "all" else list(registry.REGISTRY)
+        out = {"ok": True, "accounts": {n: mcp.call("social_account", {"network": n}) for n in nets
+                                        if hasattr(drivers.load(registry.REGISTRY[n]["driver"]), "account")}}
     elif a.cmd == "recipes":
         out = mcp.call("social_recipes", {})
     elif a.cmd == "selftest":

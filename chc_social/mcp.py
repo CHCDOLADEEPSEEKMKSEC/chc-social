@@ -39,6 +39,13 @@ TOOLS = [
          "required": ["network", "url"]}},
     {"name": "social_recipes", "description": "List learned recipes and their version/confidence.",
      "inputSchema": {"type": "object", "properties": {}}},
+    {"name": "social_delete", "description": "Delete a post/message by id (network-dependent).",
+     "inputSchema": {"type": "object", "properties": {
+         "network": {"type": "string"}, "id": {"type": "string"},
+         "dry_run": {"type": "boolean"}}, "required": ["network", "id"]}},
+    {"name": "social_account", "description": "Prove which account/identity the credentials belong to.",
+     "inputSchema": {"type": "object", "properties": {"network": {"type": "string"}},
+                     "required": ["network"]}},
     {"name": "social_ledger_selftest", "description": "Append a test receipt and report where it went.",
      "inputSchema": {"type": "object", "properties": {}}},
 ]
@@ -122,6 +129,29 @@ def call(name, args):
         return _learn(args)
     if name == "social_recipes":
         return {"ok": True, "recipes": learn.all_recipes()}
+    if name == "social_delete":
+        spec = registry.get(args["network"])
+        if not spec:
+            return {"ok": False, "error": "unknown network %r" % args["network"]}
+        if "delete" not in spec["caps"]:
+            return {"ok": False, "error": "%s cannot delete (caps: %s) — say so, do not pretend"
+                    % (args["network"], spec["caps"])}
+        drv = drivers.load(spec["driver"], dry_run=bool(args.get("dry_run")))
+        res = drv.delete(args["id"])
+        led = ledger.record("social-delete", "%s delete" % args["network"],
+                            {"network": args["network"], "id": args["id"], "result": dict(res)})
+        return {"ok": bool(res.get("ok")), "network": args["network"],
+                "result": dict(res), "ledger": led}
+    if name == "social_account":
+        spec = registry.get(args["network"])
+        if not spec:
+            return {"ok": False, "error": "unknown network %r" % args["network"]}
+        if not hasattr(drivers.load(spec["driver"]), "account"):
+            return {"ok": False, "error": "%s driver has no identity check" % args["network"]}
+        res = drivers.load(spec["driver"]).account()
+        ledger.record("social-account", "%s identity check" % args["network"],
+                      {"network": args["network"], "result": dict(res)})
+        return {"ok": bool(res.get("ok")), "network": args["network"], "result": dict(res)}
     if name == "social_ledger_selftest":
         return {"ok": True, "ledger": ledger.record("social-selftest", "ledger selftest", {"ok": True})}
     raise KeyError("unknown tool %r" % name)

@@ -35,7 +35,7 @@ def test_mcp_handshake():
     check("initialize returns serverInfo", out["result"]["serverInfo"]["name"] == "chc-social")
     tl = mcp.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})
     names = [t["name"] for t in tl["result"]["tools"]]
-    check("tools/list has 8 tools", len(names) == 8, names)
+    check("tools/list has 10 tools", len(names) == 10, names)
     check("notification returns None", mcp.handle({"method": "notifications/initialized"}) is None)
     unknown = mcp.handle({"jsonrpc": "2.0", "id": 3, "method": "nope"})
     check("unknown method -> -32601", unknown["error"]["code"] == -32601)
@@ -100,7 +100,7 @@ def test_stdio():
     lines = [json.loads(l) for l in out.getvalue().strip().split("\n")]
     check("stdio: 3 replies", len(lines) == 3, len(lines))
     check("stdio: parse error reported", lines[-1]["error"]["code"] == -32700)
-    check("stdio: tools listed", len(lines[1]["result"]["tools"]) == 8)
+    check("stdio: tools listed", len(lines[1]["result"]["tools"]) == 10)
 
 
 if __name__ == "__main__":
